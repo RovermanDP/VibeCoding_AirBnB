@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { MobileSidebar } from '@/components/layout/sidebar'
+import { handleLogout } from '@/components/layout/logout-handler'
 
 interface TopbarProps {
   /**
@@ -119,9 +120,7 @@ function UserMenu() {
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
-          onClick={() => {
-            // TODO(Task 013): logoutAction() 호출로 교체
-          }}
+          onClick={handleLogout}
           className="text-destructive focus:text-destructive"
         >
           로그아웃

@@ -9,11 +9,19 @@
 
 import type { ReactNode } from 'react'
 
+import { cn } from '@/lib/utils'
+
 interface FilterBarProps {
   /** 필터 컨트롤 슬롯 — <Select>, <Input> 등을 자유 배치 */
   children: ReactNode
+  /** 루트 컨테이너에 추가할 클래스 (간격·정렬 오버라이드용) */
+  className?: string
 }
 
-export function FilterBar({ children }: FilterBarProps) {
-  return <div className="flex flex-wrap items-center gap-2">{children}</div>
+export function FilterBar({ children, className }: FilterBarProps) {
+  return (
+    <div className={cn('flex flex-wrap items-center gap-2', className)}>
+      {children}
+    </div>
+  )
 }

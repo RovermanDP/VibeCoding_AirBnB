@@ -4,6 +4,8 @@
  * 색상은 shadcn Badge variant(default/secondary/destructive/outline)와
  * Tailwind CSS 변수 기반 토큰만 사용한다. hex/RGB 하드코딩 금지.
  * 서버 컴포넌트 — 클라이언트 훅 사용 금지.
+ *
+ * 상태 매핑 테이블의 단일 진실 공급원: src/lib/constants/status.ts
  */
 
 import type {
@@ -12,83 +14,37 @@ import type {
   MessageThreadStatus,
 } from '@/types'
 import { Badge } from '@/components/ui/badge'
+import {
+  RESERVATION_STATUS_MAP,
+  LISTING_STATUS_MAP,
+  THREAD_STATUS_MAP,
+  type StatusConfig,
+} from '@/lib/constants/status'
 
-/** Badge에서 허용하는 variant 타입 */
-type BadgeVariant = 'default' | 'secondary' | 'destructive' | 'outline'
-
-interface StatusBadgeProps {
-  /** 도메인 구분자 */
-  domain: 'reservation' | 'listing' | 'thread'
-  /** 도메인별 상태값 */
-  status: ReservationStatus | ListingStatus | MessageThreadStatus
-}
-
-/** ─────────────────────────────────────────────
- * 도메인별 상태 → { label, variant } 매핑 테이블
- * variant는 shadcn Badge variant 이름만 사용 (hex 금지)
- * ───────────────────────────────────────────── */
-
-const RESERVATION_STATUS_MAP: Record<
-  ReservationStatus,
-  { label: string; variant: BadgeVariant }
-> = {
-  pending: { label: '승인 대기', variant: 'outline' },
-  confirmed: { label: '확정', variant: 'default' },
-  rejected: { label: '거절됨', variant: 'destructive' },
-  cancelled: { label: '취소됨', variant: 'destructive' },
-  completed: { label: '완료', variant: 'secondary' },
-}
-
-const LISTING_STATUS_MAP: Record<
-  ListingStatus,
-  { label: string; variant: BadgeVariant }
-> = {
-  active: { label: '운영 중', variant: 'default' },
-  inactive: { label: '비운영', variant: 'secondary' },
-  maintenance: { label: '유지보수 중', variant: 'destructive' },
-}
-
-const THREAD_STATUS_MAP: Record<
-  MessageThreadStatus,
-  { label: string; variant: BadgeVariant }
-> = {
-  unread: { label: '읽지 않음', variant: 'secondary' },
-  read: { label: '읽음', variant: 'outline' },
-  archived: { label: '보관됨', variant: 'outline' },
-}
+/**
+ * Discriminated union props.
+ * domain별 status 타입을 정확히 좁혀 잘못된 조합(예: domain="reservation" + status="active")을
+ * 컴파일 타임에 차단한다. resolveConfig 내부에서 `as` 캐스팅이 불필요해진다.
+ */
+type StatusBadgeProps =
+  | { domain: 'reservation'; status: ReservationStatus }
+  | { domain: 'listing'; status: ListingStatus }
+  | { domain: 'thread'; status: MessageThreadStatus }
 
 /** domain에 따라 올바른 매핑 테이블에서 label/variant를 조회한다 */
-function resolveConfig(
-  domain: StatusBadgeProps['domain'],
-  status: StatusBadgeProps['status']
-): { label: string; variant: BadgeVariant } {
-  switch (domain) {
+function resolveConfig(props: StatusBadgeProps): StatusConfig {
+  switch (props.domain) {
     case 'reservation':
-      return (
-        RESERVATION_STATUS_MAP[status as ReservationStatus] ?? {
-          label: status,
-          variant: 'outline',
-        }
-      )
+      return RESERVATION_STATUS_MAP[props.status]
     case 'listing':
-      return (
-        LISTING_STATUS_MAP[status as ListingStatus] ?? {
-          label: status,
-          variant: 'outline',
-        }
-      )
+      return LISTING_STATUS_MAP[props.status]
     case 'thread':
-      return (
-        THREAD_STATUS_MAP[status as MessageThreadStatus] ?? {
-          label: status,
-          variant: 'outline',
-        }
-      )
+      return THREAD_STATUS_MAP[props.status]
   }
 }
 
-export function StatusBadge({ domain, status }: StatusBadgeProps) {
-  const { label, variant } = resolveConfig(domain, status)
+export function StatusBadge(props: StatusBadgeProps) {
+  const { label, variant } = resolveConfig(props)
 
   return (
     <Badge variant={variant} aria-label={`상태: ${label}`}>

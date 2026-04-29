@@ -7,6 +7,8 @@
 
 import type { ReactNode } from 'react'
 
+import { cn } from '@/lib/utils'
+
 interface PageHeaderProps {
   /** 페이지 제목 — <h1>으로 렌더링 */
   title: string
@@ -14,11 +16,23 @@ interface PageHeaderProps {
   description?: string
   /** 우측 액션 슬롯 (예: 필터 버튼, 신규 작성 버튼 등) */
   actions?: ReactNode
+  /** 루트 컨테이너에 추가할 클래스 (간격·정렬 오버라이드용) */
+  className?: string
 }
 
-export function PageHeader({ title, description, actions }: PageHeaderProps) {
+export function PageHeader({
+  title,
+  description,
+  actions,
+  className,
+}: PageHeaderProps) {
   return (
-    <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    <div
+      className={cn(
+        'flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between',
+        className
+      )}
+    >
       {/* 타이틀 + 설명 */}
       <div className="space-y-1">
         <h1 className="text-foreground text-2xl font-bold tracking-tight">

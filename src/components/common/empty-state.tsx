@@ -8,6 +8,7 @@
 import Link from 'next/link'
 import type { LucideIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
 interface EmptyStateProps {
   /** 중앙에 표시할 Lucide 아이콘 */
@@ -18,6 +19,8 @@ interface EmptyStateProps {
   description?: string
   /** 액션 버튼 — label과 이동 경로 */
   action?: { label: string; href: string }
+  /** 루트 컨테이너에 추가할 클래스 (패딩·정렬 오버라이드용) */
+  className?: string
 }
 
 export function EmptyState({
@@ -25,12 +28,16 @@ export function EmptyState({
   title,
   description,
   action,
+  className,
 }: EmptyStateProps) {
   return (
     <div
       role="status"
       aria-label={title}
-      className="flex flex-col items-center justify-center gap-4 py-16 text-center"
+      className={cn(
+        'flex flex-col items-center justify-center gap-4 py-16 text-center',
+        className
+      )}
     >
       {/* 아이콘 슬롯 */}
       {Icon && (

@@ -22,6 +22,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet'
+import { handleLogout } from '@/components/layout/logout-handler'
 import { cn } from '@/lib/utils'
 
 /** 사이드바·모바일 Sheet 헤더에서 공유하는 브랜드 라벨 */
@@ -110,14 +111,10 @@ function LogoutSection({ onSelect }: SidebarItemProps) {
   return (
     <div className="mt-auto">
       <Separator className="mb-4" />
-      {/*
-       * TODO(Task 013): Phase 3에서 logoutAction Server Action으로 교체.
-       * 현재는 자리 확보 목적의 비동작 버튼.
-       */}
       <form
         onSubmit={e => {
           e.preventDefault()
-          // TODO(Task 013): logoutAction() 호출로 교체
+          handleLogout()
         }}
       >
         <Button

@@ -8,14 +8,8 @@
 import Link from 'next/link'
 import type { LucideIcon } from 'lucide-react'
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react'
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
-import { cn } from '@/lib/utils'
+import { Card, CardAction, CardContent, CardHeader } from '@/components/ui/card'
+import { cn, CARD_LINK_CLASS } from '@/lib/utils'
 
 interface StatCardProps {
   /** 통계 항목 이름 */
@@ -32,11 +26,16 @@ interface StatCardProps {
   href?: string
 }
 
-/** 트렌드 방향별 아이콘 및 색상 클래스 매핑 */
+/**
+ * 트렌드 방향별 아이콘 및 색상 클래스 매핑.
+ * 색상은 모두 시맨틱 CSS 변수 토큰(--success, --destructive, --muted-foreground)에서 파생된다.
+ * 다크 모드 대응은 globals.css의 `.dark` 블록에서 토큰 자체가 전환되므로
+ * 여기서 `dark:` 변형 클래스를 별도로 쓰지 않는다.
+ */
 const TREND_CONFIG = {
   up: {
     Icon: TrendingUp,
-    colorClass: 'text-emerald-600 dark:text-emerald-400',
+    colorClass: 'text-success',
   },
   down: {
     Icon: TrendingDown,
@@ -65,9 +64,13 @@ export function StatCard({
       )}
     >
       <CardHeader className="pb-2">
-        <CardTitle className="text-muted-foreground text-sm font-medium">
+        {/*
+         * shadcn CardTitle은 <div>로 렌더되어 시맨틱하지 않으므로
+         * 통계 라벨은 <p>로 직접 표현한다. 시각 스타일은 동일 유지.
+         */}
+        <p className="text-muted-foreground text-sm leading-none font-medium">
           {label}
-        </CardTitle>
+        </p>
         {Icon && (
           <CardAction>
             <Icon
@@ -114,10 +117,7 @@ export function StatCard({
   /* href 제공 시 Link로 감쌈 */
   if (href) {
     return (
-      <Link
-        href={href}
-        className="focus-visible:ring-ring block rounded-xl focus-visible:ring-2 focus-visible:outline-none"
-      >
+      <Link href={href} className={CARD_LINK_CLASS}>
         {cardContent}
       </Link>
     )
