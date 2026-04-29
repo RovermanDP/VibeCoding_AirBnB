@@ -8,7 +8,7 @@
  * 내부에서 사용하는 ReservationDetailHeader, GuestInfoSection 등은
  * 'use client' 미선언 컴포넌트이므로 클라이언트에서도 import 가능하다.
  *
- * 승인/거절 버튼은 disabled 상태 — Wave 3에서 Server Action 연결 예정.
+ * 승인/거절 버튼은 Task 015에서 ReservationActionButtons로 연결 완료.
  */
 
 'use client'
@@ -18,7 +18,6 @@ import Link from 'next/link'
 import { ArrowUpRight } from 'lucide-react'
 
 import type { ReservationWithListing } from '@/types'
-import { Button } from '@/components/ui/button'
 import {
   Sheet,
   SheetContent,
@@ -28,6 +27,7 @@ import {
 } from '@/components/ui/sheet'
 import { GuestInfoSection } from '@/components/reservations/guest-info-section'
 import { PaymentSummary } from '@/components/reservations/payment-summary'
+import { ReservationActionButtons } from '@/components/reservations/reservation-action-buttons'
 import { ReservationDetailHeader } from '@/components/reservations/reservation-detail-header'
 import { ReservationPeriodSection } from '@/components/reservations/reservation-period-section'
 
@@ -73,27 +73,13 @@ export function ReservationDetailSheet({
 
           {/*
            * 승인/거절 버튼 — pending 상태에서만 노출.
-           * Wave 3에서 <form action={serverAction}> 패턴으로 활성화 예정.
+           * Server Action 연결 완료 (Task 015).
            */}
           {reservation.status === 'pending' && (
-            <div className="flex gap-3">
-              <Button
-                type="button"
-                variant="default"
-                aria-label={`${reservation.guestName} 예약 승인`}
-                disabled
-              >
-                승인
-              </Button>
-              <Button
-                type="button"
-                variant="destructive"
-                aria-label={`${reservation.guestName} 예약 거절`}
-                disabled
-              >
-                거절
-              </Button>
-            </div>
+            <ReservationActionButtons
+              reservationId={reservation.id}
+              guestName={reservation.guestName}
+            />
           )}
 
           {/* 새 탭/북마크용 풀페이지 링크 */}

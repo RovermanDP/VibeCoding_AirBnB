@@ -174,11 +174,11 @@
   - 다른 호스트 데이터가 응답에 포함되지 않음을 단위 테스트로 검증
   - Playwright MCP로 사용자 A 로그인 후 사용자 B 데이터가 보이지 않는지 검증
 
-- **Task 015: 예약 승인/거절 Server Action** (의존: 014, 009 / 복잡도: 중)
-  - `approveReservationAction`, `rejectReservationAction`
-  - 상태 전환 검증 (`pending` → `confirmed`/`rejected`만 허용)
-  - 토스트 피드백 + revalidate
-  - Playwright MCP로 예약 승인/거절 후 상태 변경, 필터 갱신, 빈 상태 전환 E2E
+- ✅ **Task 015: 예약 승인/거절 Server Action** (의존: 014, 009 / 복잡도: 중)
+  - `approveReservationAction`, `rejectReservationAction` — `useActionState`(React 19) 패턴으로 Task 013 인증 폼과 일관성 유지
+  - 상태 전환 검증 (`pending` → `confirmed`/`rejected`만 허용) — mock `_updateReservationStatus`에서 `_isListingOwnedByHost`로 호스트 격리 재검증 (이중 격리)
+  - 토스트 피드백 (`sonner`) + 클라이언트 `router.refresh()` (토스트 발화 타이밍 보장 위해 `revalidatePath` 대신 채택)
+  - Playwright MCP 시나리오 R/S/T/U/V 5건 통과 — 상태 변경, 필터 갱신, 빈 상태 전환, 타 호스트 예약 격리 E2E 검증
 
 - **Task 016: 메시지 답장 Server Action** (의존: 014, 010 / 복잡도: 중)
   - `sendMessageAction`: 답장 추가 + `unreadCount` 갱신 + 스레드 상태 업데이트

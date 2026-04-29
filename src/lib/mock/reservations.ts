@@ -231,3 +231,49 @@ export function _findReservationById(
 ): Reservation | undefined {
   return reservations.find(r => r.id === reservationId)
 }
+
+/**
+ * @internal 예약 상태를 변경한다 (Phase 3 Server Action 전용).
+ *
+ * 격리: `_isListingOwnedByHost`로 소유 검증을 반드시 재수행한다.
+ *       Server Action에서 hostId를 전달하더라도 이 함수가 mock 레벨에서 이중 격리를 보장한다.
+ *
+ * 상태 전환 규칙:
+ *   - `pending` → `confirmed` 또는 `rejected`만 허용
+ *   - 그 외 상태 전환은 'NOT_PENDING' 사유로 거부
+ *
+ * @param hostId       - 액션을 수행하는 호스트 ID (쿠키에서 추출)
+ * @param reservationId - 변경할 예약 ID
+ * @param nextStatus   - 변경할 목표 상태 ('confirmed' | 'rejected')
+ * @returns 성공 시 `{ ok: true }`, 실패 시 사유 포함 `{ ok: false, reason }`
+ *
+ * 앱 코드(페이지, 컴포넌트)에서 직접 호출 금지 — Server Action만 이 함수를 호출해야 한다.
+ */
+export function _updateReservationStatus(
+  hostId: string,
+  reservationId: string,
+  nextStatus: 'confirmed' | 'rejected'
+):
+  | { ok: true }
+  | { ok: false; reason: 'NOT_FOUND' | 'NOT_PENDING' | 'UNAUTHORIZED' } {
+  // 1단계: 예약 존재 여부 확인 (hostId 검증 없이 ID만으로 조회)
+  const reservation = reservations.find(r => r.id === reservationId)
+  if (!reservation) {
+    return { ok: false, reason: 'NOT_FOUND' }
+  }
+
+  // 2단계: 소유 검증 — listings.ts의 단일 소스 헬퍼로 hostId 격리 재확인
+  if (!_isListingOwnedByHost(reservation.listingId, hostId)) {
+    return { ok: false, reason: 'UNAUTHORIZED' }
+  }
+
+  // 3단계: 상태 전환 검증 — pending 상태만 전환 허용
+  if (reservation.status !== 'pending') {
+    return { ok: false, reason: 'NOT_PENDING' }
+  }
+
+  // 4단계: 인메모리 배열 in-place 변경 (const 배열이므로 객체 필드만 mutate)
+  reservation.status = nextStatus
+
+  return { ok: true }
+}

@@ -16,6 +16,7 @@ import { ArrowLeft } from 'lucide-react'
 
 import { PageHeader } from '@/components/common/page-header'
 import { Button } from '@/components/ui/button'
+import { ReservationActionButtons } from '@/components/reservations/reservation-action-buttons'
 import { ReservationDetailHeader } from '@/components/reservations/reservation-detail-header'
 import { GuestInfoSection } from '@/components/reservations/guest-info-section'
 import { ReservationPeriodSection } from '@/components/reservations/reservation-period-section'
@@ -106,29 +107,14 @@ export default async function ReservationDetailPage({ params }: PageParams) {
       </div>
 
       {/*
-       * 승인/거절 버튼 — Wave 3에서 Server Action 연결 예정
-       * pending 상태일 때만 노출. RSC 원칙상 onClick prop을 두지 않고
-       * disabled 상태로 두며, Wave 3에서 <form action> 패턴으로 활성화한다.
+       * 승인/거절 버튼 — Task 015에서 Server Action 연결 완료.
+       * pending 상태일 때만 노출 (UI 레벨 1차 차단, Server Action 레벨 2차 검증).
        */}
       {reservation.status === 'pending' && (
-        <div className="flex gap-3">
-          <Button
-            type="button"
-            variant="default"
-            aria-label={`${reservation.guestName} 예약 승인`}
-            disabled
-          >
-            승인
-          </Button>
-          <Button
-            type="button"
-            variant="destructive"
-            aria-label={`${reservation.guestName} 예약 거절`}
-            disabled
-          >
-            거절
-          </Button>
-        </div>
+        <ReservationActionButtons
+          reservationId={reservation.id}
+          guestName={reservation.guestName}
+        />
       )}
     </section>
   )
