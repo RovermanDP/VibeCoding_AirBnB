@@ -66,7 +66,7 @@
   - ✅ `src/lib/schemas/`에 로그인/회원가입/답장 폼 Zod 스키마 작성
   - ✅ 응답 시간 분리 원칙(Host 상시평균 vs PerformanceSummary 기간평균) 타입에 명시
 
-- **Task 003: 인증 미들웨어 및 쿠키 세션 골격** (의존: 001 / 복잡도: 중)
+- ✅ **Task 003: 인증 미들웨어 및 쿠키 세션 골격** (의존: 001 / 복잡도: 중)
   - `middleware.ts` 작성 (matcher: `/dashboard/:path*`)
   - 쿠키 미존재 시 `/login` 리다이렉트 로직
   - `src/lib/auth/session.ts`에 쿠키 read/write 헬퍼 골격 (실제 검증은 Phase 3에서)
