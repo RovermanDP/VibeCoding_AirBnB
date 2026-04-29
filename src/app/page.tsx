@@ -1,5 +1,9 @@
+import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 
-export default function RootPage() {
-  redirect('/login')
+export default async function RootPage() {
+  const cookieStore = await cookies()
+  const hostId = cookieStore.get('hostId')?.value
+
+  redirect(hostId ? '/dashboard' : '/login')
 }

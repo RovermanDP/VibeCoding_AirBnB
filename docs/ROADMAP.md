@@ -53,7 +53,7 @@
 **산출물**: `(auth)`, `(dashboard)` 라우트 그룹과 5개 대시보드 페이지의 빈 껍데기, 공용 레이아웃, TypeScript 타입 정의, 미들웨어 보호 동작
 **완료 조건**: `/login`, `/signup`, `/dashboard`, `/dashboard/reservations`, `/dashboard/messages`, `/dashboard/listings`, `/dashboard/performance` 라우트가 빈 페이지로 모두 응답하며 사이드바/탑바 네비게이션으로 전환 가능, 비로그인 시 `/login` 리다이렉트 동작 확인
 
-- **Task 001: 라우트 그룹 및 페이지 골격 구성** - 우선순위 (의존: 없음 / 복잡도: 중)
+- ✅ **Task 001: 라우트 그룹 및 페이지 골격 구성** - 우선순위 (의존: 없음 / 복잡도: 중)
   - `src/app/(auth)/login/page.tsx`, `src/app/(auth)/signup/page.tsx` 라우트 그룹 이전
   - `src/app/(dashboard)/dashboard/page.tsx` 등 5개 대시보드 페이지 빈 껍데기 생성
   - `src/app/(auth)/layout.tsx`, `src/app/(dashboard)/layout.tsx` 그룹별 레이아웃 분리
