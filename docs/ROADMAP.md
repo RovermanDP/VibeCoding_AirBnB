@@ -130,12 +130,30 @@
   - 숙소별 예약 요약 미니 위젯
   - 빈 상태 표시
 
-- **Task 012: 성과 페이지 UI 완성** (의존: 005, 006 / 복잡도: 중)
-  - 기간 선택 (`7d`/`30d`/`90d`) — URL Search Params 동기화
-  - 숙소 선택 (전체/개별) — URL Search Params 동기화
-  - 매출/예약 수/점유율 카드
-  - 기간 평균 응답 시간 카드 (`PerformanceSummary.responseTimeMinutes` 사용)
-  - 빈 상태 표시
+- 🟡 **Task 012: 성과 페이지 UI 완성 (PARTIAL)** (의존: 005, 006 / 복잡도: 중)
+  - ✅ 기간 선택 (`7d`/`30d`/`90d`) — URL Search Params 동기화 (`PeriodFilter`)
+  - ⏭️ 숙소 선택 (전체/개별) — URL Search Params 동기화 → **Task 012-A로 분리**
+  - ✅ 매출/예약 수/점유율 카드 (`StatCard` 재사용)
+  - ✅ 기간 평균 응답 시간 카드 (`PerformanceSummary.responseTimeMinutes` 가중평균 사용, `Host.responseTimeMinutes` 미사용)
+  - ✅ 빈 상태 표시 (`EmptyState`)
+  - ✅ 차트 자리 마크업 (`PerformanceChartContainer` — 실제 차트 라이브러리 도입은 후속)
+  - 산출물: `app/(dashboard)/dashboard/performance/{page,loading,error}.tsx`, `app/(dashboard)/dashboard/performance/_lib/performance.ts`, `components/performance/{period-filter,performance-chart-container}.tsx`
+
+- **Task 012-A: 성과 페이지 숙소 선택 필터 및 상세 테이블** (의존: 012, 006 / 복잡도: 하)
+  > Task 012에서 분리. Phase 2 잔여 항목으로 Task 012 직후 진행. 기존 Phase 3 "Task 013 인증 Server Action"과는 별개의 작업이며 번호 충돌을 피하기 위해 `012-A`로 표기.
+  - `src/components/performance/listing-filter.tsx` 신규 — `PerformanceListingFilter` 구현
+    - props: `listings: Listing[]`, `currentListingId: string | undefined`, `currentPeriod: PerformancePeriod`
+    - "전체 숙소" 옵션 + 개별 숙소 항목을 `<Link>`로 렌더 (URL 기반, `useState` 미사용)
+    - `URLSearchParams` 기반 URL 생성으로 `period`/`listingId` 동시 보존 (`PeriodFilter.buildPeriodHref` 패턴 재사용)
+  - `app/(dashboard)/dashboard/performance/page.tsx`의 숙소 선택 placeholder div 교체 (현재 `TODO: Task 013 UI` 주석 → `Task 012-A`로 정정)
+  - 숙소별 성과 테이블 컴포넌트 구현 — `PerformanceTable`
+    - 현재 `PerformanceChartContainer` placeholder를 실제 테이블로 교체
+    - prop 이름은 `periodResponseMinutes`로 명확화 (`Host.responseTimeMinutes` 혼용 금지 유지)
+  - `loading.tsx`의 숙소 필터 자리 스켈레톤은 이미 추가되어 있어 추가 작업 불필요
+  - 데이터 골격은 이미 작동 상태 — 추가 구현 불필요:
+    - `searchParams.listingId` 파싱(`page.tsx:198-199`)
+    - `fetchListingsForHost(hostId)` 호출(`page.tsx:79`)
+    - `PeriodFilter`의 `baseParams`로 `listingId` 보존 연동(`page.tsx:216`)
 
 ### Phase 3: 핵심 기능 구현 (인증 + Server Action 연동)
 
@@ -166,6 +184,7 @@
   - `sendMessageAction`: 답장 추가 + `unreadCount` 갱신 + 스레드 상태 업데이트
   - React Hook Form + Zod로 빈 메시지 차단
   - 전송 후 입력창 초기화 + 스레드 자동 스크롤
+  - `MessageThread` 타입에 `lastMessageAt: Date` 필드 추가 (목록 정렬·시간 표시용 — Task 010 백로그)
   - Playwright MCP로 메시지 전송 후 스레드 갱신 검증
 
 - **Task 017: 숙소 상태 변경 Server Action** (의존: 014, 011 / 복잡도: 하)
