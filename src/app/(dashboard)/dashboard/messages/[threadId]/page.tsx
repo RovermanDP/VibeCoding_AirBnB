@@ -151,7 +151,7 @@ export default async function MessageThreadPage({
 
         {/* 입력창 — 하단 고정 */}
         <div className="border-border border-t p-4">
-          <MessageInput />
+          <MessageInput threadId={threadId} />
         </div>
       </div>
     </MessagesShell>

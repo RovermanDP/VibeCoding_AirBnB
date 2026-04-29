@@ -25,3 +25,5 @@ export type { PerformanceSummary, PerformancePeriod } from './performance'
 export type { AuthActionState } from './auth'
 
 export type { ReservationActionState } from './reservation-action'
+
+export type { MessageActionState } from './message-action'

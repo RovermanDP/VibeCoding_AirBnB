@@ -50,4 +50,12 @@ export interface MessageThread {
   unreadCount: number
   /** 대화 상태 */
   status: MessageThreadStatus
+  /**
+   * 마지막 메시지 발송 시각 (ISO 8601 문자열)
+   *
+   * - Server → Client props 직렬화 안전을 위해 Date 대신 string으로 저장한다.
+   * - 목록 정렬(내림차순) 및 시간 표시용으로 사용한다 (Task 010 백로그 → Task 016 구현).
+   * - 표시 시: `new Date(lastMessageAt)` 변환 후 `Intl.DateTimeFormat`으로 포맷.
+   */
+  lastMessageAt: string
 }

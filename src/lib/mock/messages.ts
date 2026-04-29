@@ -31,7 +31,7 @@ const THREAD_B1_002 = 'thread-b1-002'
 
 /**
  * 인메모리 스레드 배열.
- * Phase 3 sendMessageAction에서 `unreadCount`, `lastMessage`, `status`를 mutate한다.
+ * Phase 3 sendMessageAction에서 `unreadCount`, `lastMessage`, `lastMessageAt`, `status`를 mutate한다.
  *
  * 모듈-내부 전용. 다른 모듈은 본 파일의 public 조회 함수만 사용해야 한다.
  */
@@ -44,6 +44,8 @@ const threads: MessageThread[] = [
     lastMessage: '체크인 시간을 조금 늦출 수 있을까요?',
     unreadCount: 2,
     status: 'unread',
+    // 마지막 게스트 메시지 시각 (시드 데이터의 최신 메시지 sentAt과 동기화)
+    lastMessageAt: '2026-04-28T08:00:00.000Z',
   },
   {
     id: THREAD_A1_002,
@@ -52,6 +54,7 @@ const threads: MessageThread[] = [
     lastMessage: '감사합니다. 잘 이용하겠습니다!',
     unreadCount: 0,
     status: 'read',
+    lastMessageAt: '2026-04-20T15:30:00.000Z',
   },
   {
     id: THREAD_A2_001,
@@ -60,6 +63,7 @@ const threads: MessageThread[] = [
     lastMessage: '주차 공간이 있나요?',
     unreadCount: 1,
     status: 'unread',
+    lastMessageAt: '2026-04-27T16:30:00.000Z',
   },
   // ── 호스트 B 스레드 ──
   {
@@ -69,6 +73,7 @@ const threads: MessageThread[] = [
     lastMessage: '도착이 조금 늦을 것 같아요. 괜찮을까요?',
     unreadCount: 1,
     status: 'unread',
+    lastMessageAt: '2026-04-29T09:00:00.000Z',
   },
   {
     id: THREAD_B1_002,
@@ -77,6 +82,7 @@ const threads: MessageThread[] = [
     lastMessage: '예약 확인 부탁드립니다.',
     unreadCount: 0,
     status: 'read',
+    lastMessageAt: '2026-04-28T10:00:00.000Z',
   },
 ]
 
@@ -92,12 +98,15 @@ const threads: MessageThread[] = [
  */
 const messages: Message[] = [
   // ── 스레드 THREAD_A1_001 (박소연 ↔ 호스트 A) ──
+  // sentAt은 모두 UTC('Z')로 명시하여 호스트 머신 타임존과 무관하게 해석한다.
+  // 각 스레드의 lastMessageAt(ISO 문자열, UTC)과 정확히 동일한 시점을 가리키도록
+  // 마지막 메시지의 sentAt을 동기화한다.
   {
     id: 'msg-a1-001-001',
     threadId: THREAD_A1_001,
     sender: 'guest',
     body: '안녕하세요! 5월 10일 예약했습니다.',
-    sentAt: new Date('2026-04-25T09:10:00'),
+    sentAt: new Date('2026-04-25T09:10:00Z'),
     isRead: true,
   },
   {
@@ -105,7 +114,7 @@ const messages: Message[] = [
     threadId: THREAD_A1_001,
     sender: 'host',
     body: '안녕하세요, 박소연 님! 예약 확인되었습니다.',
-    sentAt: new Date('2026-04-25T10:00:00'),
+    sentAt: new Date('2026-04-25T10:00:00Z'),
     isRead: true,
   },
   {
@@ -113,7 +122,7 @@ const messages: Message[] = [
     threadId: THREAD_A1_001,
     sender: 'guest',
     body: '체크인 시간을 오후 4시로 조금 늦출 수 있을까요?',
-    sentAt: new Date('2026-04-27T14:30:00'),
+    sentAt: new Date('2026-04-27T14:30:00Z'),
     isRead: false,
   },
   {
@@ -121,7 +130,7 @@ const messages: Message[] = [
     threadId: THREAD_A1_001,
     sender: 'guest',
     body: '체크인 시간을 조금 늦출 수 있을까요?',
-    sentAt: new Date('2026-04-28T08:00:00'),
+    sentAt: new Date('2026-04-28T08:00:00Z'),
     isRead: false,
   },
   // ── 스레드 THREAD_A1_002 (최현우 ↔ 호스트 A) ──
@@ -130,7 +139,7 @@ const messages: Message[] = [
     threadId: THREAD_A1_002,
     sender: 'host',
     body: '예약 확정되었습니다. 즐거운 여행 되세요!',
-    sentAt: new Date('2026-04-20T15:00:00'),
+    sentAt: new Date('2026-04-20T15:00:00Z'),
     isRead: true,
   },
   {
@@ -138,7 +147,7 @@ const messages: Message[] = [
     threadId: THREAD_A1_002,
     sender: 'guest',
     body: '감사합니다. 잘 이용하겠습니다!',
-    sentAt: new Date('2026-04-20T15:30:00'),
+    sentAt: new Date('2026-04-20T15:30:00Z'),
     isRead: true,
   },
   // ── 스레드 THREAD_A2_001 (강태양 ↔ 호스트 A) ──
@@ -147,7 +156,7 @@ const messages: Message[] = [
     threadId: THREAD_A2_001,
     sender: 'guest',
     body: '주차 공간이 있나요?',
-    sentAt: new Date('2026-04-27T16:30:00'),
+    sentAt: new Date('2026-04-27T16:30:00Z'),
     isRead: false,
   },
   // ── 스레드 THREAD_B1_001 (한지수 ↔ 호스트 B) ──
@@ -156,7 +165,7 @@ const messages: Message[] = [
     threadId: THREAD_B1_001,
     sender: 'guest',
     body: '체크인 날짜가 기대됩니다!',
-    sentAt: new Date('2026-04-22T10:30:00'),
+    sentAt: new Date('2026-04-22T10:30:00Z'),
     isRead: true,
   },
   {
@@ -164,7 +173,7 @@ const messages: Message[] = [
     threadId: THREAD_B1_001,
     sender: 'host',
     body: '환영합니다! 궁금한 점 있으시면 언제든 연락 주세요.',
-    sentAt: new Date('2026-04-22T11:00:00'),
+    sentAt: new Date('2026-04-22T11:00:00Z'),
     isRead: true,
   },
   {
@@ -172,7 +181,7 @@ const messages: Message[] = [
     threadId: THREAD_B1_001,
     sender: 'guest',
     body: '도착이 조금 늦을 것 같아요. 괜찮을까요?',
-    sentAt: new Date('2026-04-29T09:00:00'),
+    sentAt: new Date('2026-04-29T09:00:00Z'),
     isRead: false,
   },
   // ── 스레드 THREAD_B1_002 (오준혁 ↔ 호스트 B) ──
@@ -181,7 +190,7 @@ const messages: Message[] = [
     threadId: THREAD_B1_002,
     sender: 'guest',
     body: '예약 확인 부탁드립니다.',
-    sentAt: new Date('2026-04-28T09:45:00'),
+    sentAt: new Date('2026-04-28T09:45:00Z'),
     isRead: true,
   },
   {
@@ -189,7 +198,7 @@ const messages: Message[] = [
     threadId: THREAD_B1_002,
     sender: 'host',
     body: '예약 확인되었습니다. 좋은 하루 되세요!',
-    sentAt: new Date('2026-04-28T10:00:00'),
+    sentAt: new Date('2026-04-28T10:00:00Z'),
     isRead: true,
   },
 ]
@@ -238,6 +247,12 @@ export function getThreadsByHost(
     result = result.filter(t => t.status === filter.status)
   }
 
+  // 3단계: lastMessageAt 내림차순 정렬 (최신 대화가 목록 상단에 위치)
+  result = [...result].sort(
+    (a, b) =>
+      new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime()
+  )
+
   return result
 }
 
@@ -276,4 +291,68 @@ export function getMessagesByThread(
   return messages
     .filter(m => m.threadId === threadId)
     .sort((a, b) => a.sentAt.getTime() - b.sentAt.getTime())
+}
+
+// ---------------------------------------------------------------------------
+// 변경 함수 (Phase 3 Task 016 — sendMessageAction에서 사용)
+// ---------------------------------------------------------------------------
+
+/**
+ * 호스트가 스레드에 답장 메시지를 추가한다.
+ *
+ * 동작:
+ *  1. hostId 격리 검증 (3단계 경로: thread → reservation → listing → hostId)
+ *  2. 새 Message를 messages 배열에 push
+ *  3. 해당 스레드의 lastMessage, lastMessageAt 업데이트
+ *  4. 호스트가 답장 = 게스트 메시지 읽고 응답 → status: 'read', unreadCount: 0
+ *
+ * @param hostId   - 세션 쿠키에서 추출한 호스트 ID (격리 검증용)
+ * @param threadId - 답장을 추가할 스레드 ID
+ * @param body     - 메시지 본문 (빈 문자열 방어는 호출부 Zod 검증에서 선행 처리)
+ * @returns 성공 여부 및 실패 사유
+ */
+export function replyToThread(
+  hostId: string,
+  threadId: string,
+  body: string
+): { ok: true } | { ok: false; reason: 'NOT_FOUND' | 'UNAUTHORIZED' } {
+  // 1단계: hostId 격리 검증
+  if (!isThreadOwnedByHost(threadId, hostId)) {
+    // 스레드 자체가 없는 경우와 소유권 없는 경우를 분리
+    const threadExists = threads.some(t => t.id === threadId)
+    return { ok: false, reason: threadExists ? 'UNAUTHORIZED' : 'NOT_FOUND' }
+  }
+
+  // 2단계: 스레드 인덱스 조회 (격리 검증 이후이므로 반드시 존재)
+  const threadIndex = threads.findIndex(t => t.id === threadId)
+  const thread = threads[threadIndex]!
+
+  // 3단계: 새 메시지 생성
+  // ID 충돌 방지: 같은 밀리초에 두 번 dispatch될 가능성을 차단하기 위해
+  // crypto.randomUUID()를 사용한다 (Date.now() 단독으로는 충돌 가능).
+  const now = new Date()
+  const newMessage: Message = {
+    id: `msg-${threadId}-${crypto.randomUUID()}`,
+    threadId,
+    sender: 'host',
+    body,
+    sentAt: now,
+    isRead: true, // 호스트 자신이 보낸 메시지이므로 읽음 처리
+  }
+  messages.push(newMessage)
+
+  // 4단계: 스레드 메타데이터 갱신
+  //   - lastMessage: 전송한 메시지 본문 미리보기
+  //   - lastMessageAt: ISO 8601 문자열 (직렬화 안전)
+  //   - status: 'read' — 호스트가 답장했으므로 읽음 상태로 전환
+  //   - unreadCount: 0 — 게스트 미읽 메시지가 있었더라도 호스트 확인 후 답장한 것으로 간주
+  threads[threadIndex] = {
+    ...thread,
+    lastMessage: body,
+    lastMessageAt: now.toISOString(),
+    status: 'read',
+    unreadCount: 0,
+  }
+
+  return { ok: true }
 }

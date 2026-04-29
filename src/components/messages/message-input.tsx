@@ -1,41 +1,22 @@
 /**
- * 메시지 입력 폼 컴포넌트
- * Textarea + Send 버튼으로 구성된 비제어 입력 폼이다.
- * 전송 로직은 Phase 3(Wave 4)에서 Server Action으로 연동한다.
- * 서버 컴포넌트 — 'use client' 및 useState 금지.
+ * 메시지 입력 폼 서버 컴포넌트 래퍼
+ *
+ * 실제 폼 인터랙션(RHF + useActionState)은 MessageInputClient에서 처리하고,
+ * 이 파일은 threadId prop을 수신하여 클라이언트 컴포넌트로 전달하는 래퍼 역할만 한다.
+ *
+ * 서버/클라이언트 경계 전략:
+ *  - page.tsx(서버)가 threadId를 prop으로 이 컴포넌트에 전달
+ *  - 이 컴포넌트는 서버 컴포넌트로 유지하며, 필요한 props만 클라이언트 컴포넌트로 전달
+ *  - 향후 threadId 외 추가 서버 데이터(예: 초기 본문 초안) 주입이 용이
  */
 
-import { Send } from 'lucide-react'
+import { MessageInputClient } from './message-input-client'
 
-import { Button } from '@/components/ui/button'
-import { Textarea } from '@/components/ui/textarea'
+interface MessageInputProps {
+  /** 답장을 보낼 스레드 ID — hidden input으로 Server Action에 전달 */
+  threadId: string
+}
 
-export function MessageInput() {
-  return (
-    // TODO (Phase 3): action={sendMessageAction} 연동
-    <form className="bg-card flex items-end gap-2 rounded-lg border p-3">
-      {/* 비제어 Textarea — 전송 로직 연동 전까지 name만 선언 */}
-      {/* shadcn 기본값 field-sizing-content와 충돌하지 않도록 rows/min-h-0 제거.
-          최소 높이는 Tailwind 클래스(min-h-[5rem])로 명시한다. */}
-      <Textarea
-        name="content"
-        placeholder="메시지를 입력하세요..."
-        className="min-h-[5rem] flex-1 resize-none"
-        aria-label="메시지 입력"
-      />
-
-      {/* 전송 버튼 — Phase 3에서 pending 상태 처리 추가 예정.
-          현재는 action 미연동 상태이므로 disabled로 두어
-          submit 시 페이지 리로드를 차단한다. Phase 3에서 disabled 제거. */}
-      <Button
-        type="submit"
-        size="icon"
-        aria-label="메시지 보내기"
-        disabled
-        title="Phase 3에서 활성화"
-      >
-        <Send className="size-4" />
-      </Button>
-    </form>
-  )
+export function MessageInput({ threadId }: MessageInputProps) {
+  return <MessageInputClient threadId={threadId} />
 }

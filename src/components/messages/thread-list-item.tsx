@@ -18,10 +18,10 @@ interface ThreadListItemProps {
 }
 
 /**
- * Date → 한국어 시·분 포맷 (HH:mm)
- * MessageThread에 lastMessageAt이 없으므로 표시하지 않는다.
+ * `MessageThread.lastMessageAt`(ISO 8601 문자열)은 Task 016에서 추가되었으나
+ * 현재는 `getThreadsByHost()`의 내림차순 정렬에만 사용한다.
+ * 항목 우측에 시간 텍스트 표시를 추가할지는 후속 UI 작업에서 결정한다.
  */
-
 export function ThreadListItem({ thread, isActive }: ThreadListItemProps) {
   /** 게스트 이름 첫 글자를 아바타 폴백으로 사용 — 빈 문자열일 경우 '?' */
   const initial = thread.guestName.charAt(0) || '?'

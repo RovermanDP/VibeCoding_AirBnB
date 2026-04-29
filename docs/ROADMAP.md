@@ -180,12 +180,14 @@
   - 토스트 피드백 (`sonner`) + 클라이언트 `router.refresh()` (토스트 발화 타이밍 보장 위해 `revalidatePath` 대신 채택)
   - Playwright MCP 시나리오 R/S/T/U/V 5건 통과 — 상태 변경, 필터 갱신, 빈 상태 전환, 타 호스트 예약 격리 E2E 검증
 
-- **Task 016: 메시지 답장 Server Action** (의존: 014, 010 / 복잡도: 중)
-  - `sendMessageAction`: 답장 추가 + `unreadCount` 갱신 + 스레드 상태 업데이트
-  - React Hook Form + Zod로 빈 메시지 차단
-  - 전송 후 입력창 초기화 + 스레드 자동 스크롤
-  - `MessageThread` 타입에 `lastMessageAt: Date` 필드 추가 (목록 정렬·시간 표시용 — Task 010 백로그)
-  - Playwright MCP로 메시지 전송 후 스레드 갱신 검증
+- ✅ **Task 016: 메시지 답장 Server Action** (의존: 014, 010 / 복잡도: 중)
+  - `sendMessageAction`: 답장 추가 + `unreadCount: 0` + `status: 'read'` + `lastMessageAt` 갱신 — hostId 이중 격리(쿠키 + mock 레벨 `replyToThread`)
+  - React Hook Form + Zod `replySchema` 공유로 빈 메시지 차단 (클라이언트 실시간 검증 + 서버 재검증)
+  - `MessageInputClient`: `useActionState` + `useFormStatus` 기반 SubmitButton, 전송 성공 후 `reset()` + `router.refresh()`, Enter 단독 전송 / Shift+Enter 줄바꿈
+  - `ScrollAnchor` 클라이언트 컴포넌트 분리 — `MessageBubbleList` 서버 컴포넌트 유지하며 최신 메시지 자동 스크롤
+  - `MessageThread` 타입에 `lastMessageAt: string` 추가(ISO 8601, 직렬화 안전) + `getThreadsByHost()` lastMessageAt 내림차순 정렬
+  - Playwright MCP 서버 disconnected 상태로 E2E 미실행 — 시나리오 W/X/Y/Z `tasks/016-message-reply-action.md`에 명세 완료, 사용자가 직접 실행 필요
+  - `npm run check-all` 통과
 
 - **Task 017: 숙소 상태 변경 Server Action** (의존: 014, 011 / 복잡도: 하)
   - `togglePublicAction`: `isPublic` 토글
