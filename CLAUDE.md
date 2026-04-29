@@ -14,7 +14,6 @@
 ## 주요 디렉토리
 
 - `src/app/` — 페이지 및 레이아웃 (App Router)
-- `src/components/ui/` — shadcn/ui 컴포넌트 (수정 금지)
 - `src/components/` — 프로젝트 공용 컴포넌트
 - `src/lib/` — 유틸리티 및 환경변수
 
@@ -42,7 +41,6 @@ npx shadcn@latest add <component>  # UI 컴포넌트 추가
 - 기본값은 **React Server Components + Server Actions**. 서버에서 쿠키 → `hostId` 추출 → 목업 모듈 조회 → 페이지 렌더 흐름을 따른다.
 - **필터/정렬/기간/탭 등 공유 가능한 클라이언트 상태는 URL Search Params**로 관리한다 (`useSearchParams` + `<Link>`/`router.replace`). 사용자가 URL을 공유하면 동일 상태가 복원되어야 한다.
 - **별도 클라이언트 상태 라이브러리(Zustand 등)는 도입하지 않는다.** 폼 로컬 상태는 React Hook Form, 테마는 `next-themes`(이미 도입), 토스트는 `sonner`로 충분.
-- 트랜지션이 필요한 상호작용은 `useTransition` + Server Action으로 처리한다.
 
 ### 컴포넌트 위치 및 추가 정책
 
@@ -54,18 +52,13 @@ npx shadcn@latest add <component>  # UI 컴포넌트 추가
 
 ### 폼 처리 컨벤션
 
-- **React Hook Form + Zod + Server Actions** 조합을 표준으로 사용한다.
-- Zod 스키마는 `src/lib/schemas/`에 도메인별로 분리하고, 클라이언트(RHF)와 서버(Server Action) 양쪽에서 동일 스키마를 import해 검증한다.
-- 폼 상태는 `useActionState`(Next.js 15 / React 19)로 Server Action 결과를 받아 폼 오류를 표시한다.
-- 입력 컴포넌트는 shadcn `Form`/`FormField`/`FormMessage`로 통일하여 ARIA 연결과 에러 메시지 일관성을 확보한다.
-- 서버에서만 검증해야 하는 비즈니스 규칙(예: 이메일 중복)은 Server Action 내에서 검사하여 `state.error`로 반환한다.
+- Zod 스키마는 `src/lib/schemas/`에 도메인별로 분리하고, 클라이언트(RHF)와 서버(Server Action)가 동일 스키마를 공유한다
 
 ### 데이터 페칭 및 격리 규칙
 
 - **데이터 페칭은 Server Component에서 직접 호출**한다. 별도의 API 라우트(`/app/api/*`)는 만들지 않고, 변경은 Server Action으로만 처리한다.
 - 목업 데이터 모듈(`src/lib/mock/`)의 모든 조회 함수는 **`hostId`를 필수 파라미터**로 받는다. 함수 시그니처에서 `hostId`를 누락하지 않으며, 호출부(페이지/Server Action)에서 쿠키로부터 추출한 hostId를 명시적으로 전달한다.
-- 다른 호스트의 데이터는 절대 응답에 포함되지 않아야 한다. 신규 조회 함수를 추가할 때 격리 규칙을 함수 단위로 검증한다.
-- 인증 헬퍼는 `src/lib/auth/session.ts`에 일원화하여 쿠키 read/write/clear와 `getCurrentHostId()`를 제공한다.
+- 다른 호스트의 데이터는 절대 응답에 포함되지 않아야 한다.
 
 ### 응답 시간 필드 분리 원칙
 
@@ -75,14 +68,10 @@ npx shadcn@latest add <component>  # UI 컴포넌트 추가
 
 ### 파일·폴더 네이밍
 
-- 라우트 파일: Next.js 규약(`page.tsx`, `layout.tsx`, `loading.tsx`, `error.tsx`, `not-found.tsx`).
 - 컴포넌트 파일: `kebab-case.tsx` (예: `stat-card.tsx`, `reservation-list.tsx`). 컴포넌트 export 이름은 `PascalCase`.
-- 스키마/유틸 파일: `kebab-case.ts` (예: `login-schema.ts`, `format-currency.ts`).
 - Server Action 파일: 도메인별로 `src/app/(dashboard)/dashboard/<feature>/actions.ts`에 모으고 파일 상단에 `'use server'` 명시.
 - 타입 파일: `src/types/<domain>.ts` 또는 도메인 모듈 내부 `types.ts`.
 
 ### 테스트 컨벤션
 
-- **Server Action / 인증 / 데이터 격리 / 폼 검증** 작업은 Playwright MCP를 활용한 E2E 테스트가 필수다.
-- 작업 파일(`/tasks/XXX-*.md`)에 "## 테스트 체크리스트" 섹션으로 시나리오를 명시한다.
-- 핵심 사용자 플로우(로그인 → 대시보드 → 예약 승인 → 메시지 답장 → 숙소 상태 변경 → 로그아웃)는 Phase 3 통합 테스트 Task에서 회귀 테스트로 유지한다.
+- Server Action / 인증 / 데이터 격리 / 폼 검증 작업은 Playwright MCP E2E 테스트 필수
