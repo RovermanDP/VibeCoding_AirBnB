@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { MobileSidebar } from '@/components/layout/sidebar'
-import { handleLogout } from '@/components/layout/logout-handler'
+import { logoutAction } from '@/app/(auth)/actions'
 
 interface TopbarProps {
   /**
@@ -119,11 +119,21 @@ function UserMenu() {
           프로필 편집
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem
-          onClick={handleLogout}
-          className="text-destructive focus:text-destructive"
-        >
-          로그아웃
+        {/*
+         * logoutAction은 Server Action이므로 DropdownMenuItem 내부에
+         * <form action={logoutAction}>으로 연결한다.
+         * DropdownMenuItem을 asChild로 사용하면 포커스 관리가 깨지므로
+         * form + button 패턴으로 직접 처리한다.
+         */}
+        <DropdownMenuItem asChild>
+          <form action={logoutAction} className="w-full">
+            <button
+              type="submit"
+              className="text-destructive w-full cursor-default text-left text-sm"
+            >
+              로그아웃
+            </button>
+          </form>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

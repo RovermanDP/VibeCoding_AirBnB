@@ -9,7 +9,11 @@ import { z } from 'zod'
  * React Hook Form(클라이언트)과 Server Action(서버) 양쪽에서 동일하게 사용한다.
  */
 export const loginSchema = z.object({
-  email: z.string().email({ message: '올바른 이메일 형식을 입력해주세요.' }),
+  email: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .email({ message: '올바른 이메일 형식을 입력해주세요.' }),
   password: z.string().trim().min(1, { message: '비밀번호를 입력해주세요.' }),
 })
 
@@ -28,7 +32,11 @@ export type LoginFormValues = z.infer<typeof loginSchema>
  */
 export const signupSchema = z.object({
   name: z.string().trim().min(1, { message: '이름을 입력해주세요.' }),
-  email: z.string().email({ message: '올바른 이메일 형식을 입력해주세요.' }),
+  email: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .email({ message: '올바른 이메일 형식을 입력해주세요.' }),
   password: z
     .string()
     .trim()

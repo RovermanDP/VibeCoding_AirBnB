@@ -161,12 +161,12 @@
 **산출물**: 동작하는 로그인/회원가입/로그아웃 플로우, 상태 변경 액션, 토스트 피드백, 데이터 격리 검증
 **완료 조건**: 모든 핵심 사용자 플로우(로그인 → 대시보드 → 예약 승인 → 메시지 답장 → 숙소 상태 변경)가 Playwright MCP E2E로 통과
 
-- **Task 013: 인증 Server Action 구현** - 우선순위 (의존: 003, 006, 007 / 복잡도: 중)
+- ✅ **Task 013: 인증 Server Action 구현** (의존: 003, 006, 007 / 복잡도: 중)
   - `loginAction`: 이메일/비밀번호 검증 → httpOnly 쿠키에 `hostId` 저장 → `/dashboard` 리다이렉트
   - `signupAction`: 동일 이메일 존재 시 `이미 가입된 이메일입니다` 오류 반환 / 신규 시 사용자 push 후 즉시 로그인
   - `logoutAction`: 쿠키 삭제 후 `/login` 리다이렉트
-  - 폼 오류 표시 (`useFormState`/`useActionState` 활용)
-  - Playwright MCP로 로그인 성공/실패, 회원가입 중복/성공, 로그아웃 플로우 E2E 검증
+  - 폼 오류 표시 (`useActionState` + `useFormStatus` 내부 SubmitButton 패턴)
+  - Playwright MCP로 9개 시나리오(로그인 성공/실패, 회원가입 중복/성공, 로그아웃, Zod 필드 검증) E2E 검증 통과
 
 - **Task 014: 데이터 페칭 hostId 격리 적용** (의존: 013, 006 / 복잡도: 중)
   - 모든 Server Component에서 쿠키 → `hostId` 추출 헬퍼 사용

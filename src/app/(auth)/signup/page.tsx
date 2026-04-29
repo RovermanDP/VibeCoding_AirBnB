@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 
-import { SignupForm } from '@/components/auth/signup-form'
+import { SignupFormClient } from '@/components/auth/signup-form-client'
 
 export const metadata: Metadata = {
   title: '회원가입',
@@ -8,5 +8,5 @@ export const metadata: Metadata = {
 }
 
 export default function SignupPage() {
-  return <SignupForm />
+  return <SignupFormClient />
 }

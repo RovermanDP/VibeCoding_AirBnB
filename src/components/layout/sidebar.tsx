@@ -22,7 +22,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet'
-import { handleLogout } from '@/components/layout/logout-handler'
+import { logoutAction } from '@/app/(auth)/actions'
 import { cn } from '@/lib/utils'
 
 /** 사이드바·모바일 Sheet 헤더에서 공유하는 브랜드 라벨 */
@@ -111,12 +111,11 @@ function LogoutSection({ onSelect }: SidebarItemProps) {
   return (
     <div className="mt-auto">
       <Separator className="mb-4" />
-      <form
-        onSubmit={e => {
-          e.preventDefault()
-          handleLogout()
-        }}
-      >
+      {/*
+       * logoutAction은 Server Action이므로 <form action={logoutAction}>으로 연결한다.
+       * onClick으로 Sheet를 닫고 나서 폼이 제출되어 /login으로 리다이렉트된다.
+       */}
+      <form action={logoutAction}>
         <Button
           type="submit"
           variant="ghost"

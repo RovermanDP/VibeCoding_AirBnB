@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { AlertCircle } from 'lucide-react'
+import { useFormStatus } from 'react-dom'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import {
@@ -24,22 +25,111 @@ interface LoginFormProps {
     email?: string
     password?: string
   }
-  /** 로딩 중 여부 */
-  isPending?: boolean
+  /**
+   * Server Action formAction (useActionState 결과).
+   * LoginFormClient에서 useActionState로 생성한 formAction을 전달한다.
+   * 없으면 정적 폼으로 동작 (미리보기 용도).
+   */
+  formAction?: (payload: FormData) => void
 }
 
 /**
- * 로그인 폼 컴포넌트
- * TODO: Task 008에서 useActionState + Server Action 연결
+ * 제출 버튼 — useFormStatus를 <form> 내부에서 호출하기 위해 분리된 컴포넌트.
+ * useFormStatus는 반드시 <form>의 자식 컴포넌트에서 호출해야 한다.
+ */
+function LoginSubmitButton() {
+  const { pending } = useFormStatus()
+  return (
+    <Button
+      type="submit"
+      className="w-full"
+      disabled={pending}
+      aria-busy={pending}
+    >
+      {pending ? '로그인 중...' : '로그인하기'}
+    </Button>
+  )
+}
+
+/**
+ * 입력 필드 묶음 — pending 중 모든 폼 컨트롤을 자동 비활성화한다.
+ * `<fieldset disabled>`는 내부 Input 등 모든 폼 컨트롤을 일괄 비활성화하므로
+ * 필드별 `disabled` prop을 개별 전달할 필요가 없다.
+ *
+ * useFormStatus는 반드시 <form> 내부에서 호출해야 하므로 별도 컴포넌트로 분리.
+ * `className="contents"`로 fieldset 자체의 레이아웃 영향을 제거한다.
+ */
+function LoginFormFields({
+  errorMessage,
+  fieldErrors,
+}: Pick<LoginFormProps, 'errorMessage' | 'fieldErrors'>) {
+  const { pending } = useFormStatus()
+  const emailError = fieldErrors?.email
+  const passwordError = fieldErrors?.password
+
+  return (
+    <fieldset disabled={pending} className="contents">
+      {/* 이메일 필드 */}
+      <div className="space-y-2">
+        <Label htmlFor="login-email">이메일</Label>
+        <Input
+          id="login-email"
+          name="email"
+          type="email"
+          placeholder="your@email.com"
+          autoComplete="email"
+          aria-required="true"
+          aria-describedby={
+            emailError
+              ? 'err-login-email'
+              : !errorMessage
+                ? 'login-email-hint'
+                : 'login-form-error'
+          }
+          aria-invalid={emailError || errorMessage ? 'true' : undefined}
+        />
+        {!emailError && !errorMessage && (
+          <p id="login-email-hint" className="text-muted-foreground text-xs">
+            가입 시 사용한 이메일을 입력하세요.
+          </p>
+        )}
+        <FieldError id="err-login-email" message={emailError} />
+      </div>
+
+      {/* 비밀번호 필드 */}
+      <div className="space-y-2">
+        <Label htmlFor="login-password">비밀번호</Label>
+        <Input
+          id="login-password"
+          name="password"
+          type="password"
+          placeholder="비밀번호를 입력하세요"
+          autoComplete="current-password"
+          aria-required="true"
+          aria-describedby={
+            passwordError
+              ? 'err-login-password'
+              : errorMessage
+                ? 'login-form-error'
+                : undefined
+          }
+          aria-invalid={passwordError || errorMessage ? 'true' : undefined}
+        />
+        <FieldError id="err-login-password" message={passwordError} />
+      </div>
+    </fieldset>
+  )
+}
+
+/**
+ * 로그인 폼 UI 컴포넌트.
+ * useActionState 연결은 LoginFormClient에서 처리하고, formAction을 prop으로 받는다.
  */
 export function LoginForm({
   errorMessage,
   fieldErrors,
-  isPending = false,
+  formAction,
 }: LoginFormProps) {
-  const emailError = fieldErrors?.email
-  const passwordError = fieldErrors?.password
-
   return (
     <Card className="mx-auto w-full max-w-md">
       <CardHeader className="space-y-1 text-center">
@@ -61,71 +151,20 @@ export function LoginForm({
           </Alert>
         )}
 
-        {/* TODO: Task 008에서 action prop으로 Server Action 연결 */}
-        <form className="space-y-4" aria-label="로그인 폼" noValidate>
-          {/* 이메일 필드 */}
-          <div className="space-y-2">
-            <Label htmlFor="login-email">이메일</Label>
-            <Input
-              id="login-email"
-              name="email"
-              type="email"
-              placeholder="your@email.com"
-              autoComplete="email"
-              aria-required="true"
-              aria-describedby={
-                emailError
-                  ? 'err-login-email'
-                  : !errorMessage
-                    ? 'login-email-hint'
-                    : 'login-form-error'
-              }
-              aria-invalid={emailError || errorMessage ? 'true' : undefined}
-              disabled={isPending}
-            />
-            {!emailError && !errorMessage && (
-              <p
-                id="login-email-hint"
-                className="text-muted-foreground text-xs"
-              >
-                가입 시 사용한 이메일을 입력하세요.
-              </p>
-            )}
-            <FieldError id="err-login-email" message={emailError} />
-          </div>
+        <form
+          className="space-y-4"
+          aria-label="로그인 폼"
+          noValidate
+          action={formAction}
+        >
+          {/* pending 중 fieldset[disabled]로 모든 입력 일괄 비활성화 */}
+          <LoginFormFields
+            errorMessage={errorMessage}
+            fieldErrors={fieldErrors}
+          />
 
-          {/* 비밀번호 필드 */}
-          <div className="space-y-2">
-            <Label htmlFor="login-password">비밀번호</Label>
-            <Input
-              id="login-password"
-              name="password"
-              type="password"
-              placeholder="비밀번호를 입력하세요"
-              autoComplete="current-password"
-              aria-required="true"
-              aria-describedby={
-                passwordError
-                  ? 'err-login-password'
-                  : errorMessage
-                    ? 'login-form-error'
-                    : undefined
-              }
-              aria-invalid={passwordError || errorMessage ? 'true' : undefined}
-              disabled={isPending}
-            />
-            <FieldError id="err-login-password" message={passwordError} />
-          </div>
-
-          {/* TODO: Task 008에서 isPending 상태 연결 */}
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={isPending}
-            aria-busy={isPending}
-          >
-            {isPending ? '로그인 중...' : '로그인하기'}
-          </Button>
+          {/* 제출 버튼 — useFormStatus로 pending 상태 처리 */}
+          <LoginSubmitButton />
         </form>
 
         <p className="text-muted-foreground text-center text-sm">
