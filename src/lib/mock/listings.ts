@@ -157,3 +157,85 @@ export function _isListingOwnedByHost(
 export function _listOwnedListingIds(hostId: string): Set<string> {
   return new Set(listings.filter(l => l.hostId === hostId).map(l => l.id))
 }
+
+// ---------------------------------------------------------------------------
+// 내부 헬퍼 (Phase 3 Server Action 전용 mutation)
+// ---------------------------------------------------------------------------
+
+/**
+ * @internal 숙소 공개 여부(`isPublic`)를 변경한다 (Phase 3 Server Action 전용).
+ *
+ * 격리: `_isListingOwnedByHost`로 소유 검증을 반드시 재수행한다.
+ *       Server Action에서 hostId를 전달하더라도 이 함수가 mock 레벨에서 이중 격리를 보장한다.
+ *
+ * @param hostId    - 액션을 수행하는 호스트 ID (쿠키에서 추출)
+ * @param listingId - 변경할 숙소 ID
+ * @param isPublic  - 변경할 공개 여부
+ * @returns 성공 시 `{ ok: true, listing }`, 실패 시 사유 포함 `{ ok: false, reason }`
+ *
+ * 앱 코드(페이지, 컴포넌트)에서 직접 호출 금지 — Server Action만 이 함수를 호출해야 한다.
+ */
+export function _updateListingPublic(
+  hostId: string,
+  listingId: string,
+  isPublic: boolean
+):
+  | { ok: true; listing: Listing }
+  | { ok: false; reason: 'NOT_FOUND' | 'UNAUTHORIZED' } {
+  // 1단계: 숙소 존재 여부 확인 (hostId 검증 없이 ID만으로 조회)
+  const listing = listings.find(l => l.id === listingId)
+  if (!listing) {
+    return { ok: false, reason: 'NOT_FOUND' }
+  }
+
+  // 2단계: 소유 검증 — hostId 격리 재확인
+  if (listing.hostId !== hostId) {
+    return { ok: false, reason: 'UNAUTHORIZED' }
+  }
+
+  // 3단계: 인메모리 배열 in-place 변경 (const 배열이므로 객체 필드만 mutate)
+  listing.isPublic = isPublic
+
+  return { ok: true, listing }
+}
+
+/**
+ * @internal 숙소 운영 상태(`status`)를 변경한다 (Phase 3 Server Action 전용).
+ *
+ * 격리: `_isListingOwnedByHost`로 소유 검증을 반드시 재수행한다.
+ *       Server Action에서 hostId를 전달하더라도 이 함수가 mock 레벨에서 이중 격리를 보장한다.
+ *
+ * 상태 전환 규칙:
+ *   - `active` / `inactive` / `maintenance` 간 자유 전환 허용
+ *   - 유효하지 않은 상태는 Zod 스키마 단계에서 사전 차단됨
+ *
+ * @param hostId     - 액션을 수행하는 호스트 ID (쿠키에서 추출)
+ * @param listingId  - 변경할 숙소 ID
+ * @param nextStatus - 변경할 목표 상태
+ * @returns 성공 시 `{ ok: true, listing }`, 실패 시 사유 포함 `{ ok: false, reason }`
+ *
+ * 앱 코드(페이지, 컴포넌트)에서 직접 호출 금지 — Server Action만 이 함수를 호출해야 한다.
+ */
+export function _updateListingStatus(
+  hostId: string,
+  listingId: string,
+  nextStatus: ListingStatus
+):
+  | { ok: true; listing: Listing }
+  | { ok: false; reason: 'NOT_FOUND' | 'UNAUTHORIZED' } {
+  // 1단계: 숙소 존재 여부 확인 (hostId 검증 없이 ID만으로 조회)
+  const listing = listings.find(l => l.id === listingId)
+  if (!listing) {
+    return { ok: false, reason: 'NOT_FOUND' }
+  }
+
+  // 2단계: 소유 검증 — hostId 격리 재확인
+  if (listing.hostId !== hostId) {
+    return { ok: false, reason: 'UNAUTHORIZED' }
+  }
+
+  // 3단계: 인메모리 배열 in-place 변경 (const 배열이므로 객체 필드만 mutate)
+  listing.status = nextStatus
+
+  return { ok: true, listing }
+}

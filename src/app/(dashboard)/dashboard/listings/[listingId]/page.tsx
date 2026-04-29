@@ -26,6 +26,7 @@ import { ListingPhotoGallery } from '../_components/listing-photo-gallery'
 import { ListingInfoSection } from '../_components/listing-info-section'
 import { ListingAmenityList } from '../_components/listing-amenity-list'
 import { ListingPriceCard } from '../_components/listing-price-card'
+import { ListingStatusSelect } from '../_components/listing-status-select'
 
 // ---------------------------------------------------------------------------
 // 동적 메타데이터
@@ -124,8 +125,8 @@ export default async function ListingDetailPage({ params }: Props) {
           <ListingAmenityList />
         </div>
 
-        {/* 우측: 가격 요약 카드 (lg에서 1/3 너비) */}
-        <div className="lg:col-span-1">
+        {/* 우측: 가격 요약 카드 + 운영 상태 변경 (lg에서 1/3 너비) */}
+        <div className="space-y-4 lg:col-span-1">
           <ListingPriceCard
             listing={{
               id: listing.id,
@@ -133,6 +134,12 @@ export default async function ListingDetailPage({ params }: Props) {
               isPublic: listing.isPublic,
               status: listing.status,
             }}
+          />
+          {/* 운영 상태 변경 셀렉트 (Server Action + Optimistic UI) */}
+          <ListingStatusSelect
+            listingId={listing.id}
+            currentStatus={listing.status}
+            listingTitle={listing.title}
           />
         </div>
       </div>

@@ -189,11 +189,11 @@
   - Playwright MCP 서버 disconnected 상태로 E2E 미실행 — 시나리오 W/X/Y/Z `tasks/016-message-reply-action.md`에 명세 완료, 사용자가 직접 실행 필요
   - `npm run check-all` 통과
 
-- **Task 017: 숙소 상태 변경 Server Action** (의존: 014, 011 / 복잡도: 하)
+- ✅ **Task 017: 숙소 상태 변경 Server Action** (의존: 014, 011 / 복잡도: 하)
   - `togglePublicAction`: `isPublic` 토글
   - `updateListingStatusAction`: `active`/`inactive`/`maintenance` 변경
-  - Optimistic UI + revalidate
-  - Playwright MCP로 토글/상태 변경 후 필터 카운트 갱신 검증
+  - Optimistic UI (`useOptimistic` + `useTransition`) + `revalidatePath` × 2 (목록·상세 양쪽) + 클라이언트 `router.refresh()` 병행
+  - Playwright MCP 시나리오 L/M/N/O/P 명세 작성 완료 (`tasks/017-listing-status-actions.md`) — 실행은 사용자 몫
 
 - **Task 018: 핵심 사용자 플로우 통합 테스트** (의존: 013–017 / 복잡도: 중)
   - Playwright MCP 시나리오: 신규 가입 → 대시보드 → 예약 승인 → 메시지 답장 → 숙소 상태 변경 → 성과 확인 → 로그아웃

@@ -26,4 +26,6 @@ export type { AuthActionState } from './auth'
 
 export type { ReservationActionState } from './reservation-action'
 
+export type { ListingActionState } from './listing-action'
+
 export type { MessageActionState } from './message-action'
