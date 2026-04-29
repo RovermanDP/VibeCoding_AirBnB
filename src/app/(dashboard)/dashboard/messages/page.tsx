@@ -18,6 +18,7 @@ import { redirect } from 'next/navigation'
 
 import { MessagesShell } from '@/components/messages/messages-shell'
 import { getHostId } from '@/lib/auth/session'
+import { VALID_THREAD_STATUSES } from '@/lib/constants/status'
 import type { MessageThreadStatus } from '@/types'
 
 import { fetchThreadsByHost } from './_lib/messages'
@@ -28,11 +29,10 @@ export const metadata: Metadata = {
 }
 
 /** URL Search Params status 값을 안전하게 검증 */
-const VALID_STATUSES: MessageThreadStatus[] = ['unread', 'read', 'archived']
 function parseStatusFilter(
   value: string | undefined
 ): MessageThreadStatus | undefined {
-  return VALID_STATUSES.includes(value as MessageThreadStatus)
+  return VALID_THREAD_STATUSES.includes(value as MessageThreadStatus)
     ? (value as MessageThreadStatus)
     : undefined
 }

@@ -62,3 +62,12 @@ export const THREAD_STATUS_MAP: Record<MessageThreadStatus, StatusConfig> = {
   read: { label: '읽음', variant: 'outline' },
   archived: { label: '보관됨', variant: 'outline' },
 }
+
+/**
+ * 유효한 MessageThreadStatus 값 목록 — THREAD_STATUS_MAP에서 파생.
+ * URL Search Params 등 외부 입력 검증의 단일 진실 공급원으로 사용된다.
+ * Record 키 타입이 MessageThreadStatus이므로 추후 새 상태 추가 시 자동 반영된다.
+ */
+export const VALID_THREAD_STATUSES = Object.keys(
+  THREAD_STATUS_MAP
+) as MessageThreadStatus[]

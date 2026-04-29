@@ -168,7 +168,7 @@
   - 폼 오류 표시 (`useActionState` + `useFormStatus` 내부 SubmitButton 패턴)
   - Playwright MCP로 9개 시나리오(로그인 성공/실패, 회원가입 중복/성공, 로그아웃, Zod 필드 검증) E2E 검증 통과
 
-- **Task 014: 데이터 페칭 hostId 격리 적용** (의존: 013, 006 / 복잡도: 중)
+- ✅ **Task 014: 데이터 페칭 hostId 격리 적용** (의존: 013, 006 / 복잡도: 중)
   - 모든 Server Component에서 쿠키 → `hostId` 추출 헬퍼 사용
   - 페이지/Server Action에서 hostId를 명시적으로 전달
   - 다른 호스트 데이터가 응답에 포함되지 않음을 단위 테스트로 검증
