@@ -168,6 +168,11 @@ const reservations: Reservation[] = [
  * @param hostId - 조회 주체 호스트 ID
  * @param filter - 선택적 필터 (status, listingId)
  * @returns 해당 호스트 소유 숙소에 속한 예약 배열
+ *
+ * TODO[Phase 3 / DB 연동 전]: 날짜 범위 필터(`checkInFrom`, `checkInTo`) 옵션을
+ * 추가해 호출부가 클라이언트 레벨에서 전체 결과를 후필터링하지 않도록 한다.
+ * 현재는 목업이라 전체 조회 후 페이지에서 today 필터를 수행해도 무방하지만,
+ * 실제 DB로 전환되면 인덱스 활용을 위해 쿼리 단계에서 좁혀야 한다.
  */
 export function getReservationsByHost(
   hostId: string,

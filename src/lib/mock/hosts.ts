@@ -9,6 +9,8 @@
  * 싱글톤 인메모리 모듈 가정.
  */
 
+import { cache } from 'react'
+
 import type { Host } from '@/types'
 
 // ---------------------------------------------------------------------------
@@ -85,14 +87,17 @@ function toHost(record: HostRecord): Host {
 /**
  * hostId로 호스트를 조회한다.
  *
+ * `React.cache`로 감싸 동일 요청 + 동일 hostId에 대한 중복 호출을 메모이즈한다.
+ * (예: `generateMetadata`와 페이지 컴포넌트가 같은 hostId를 조회해도 lookup은 한 번만 수행된다.)
+ *
  * @param hostId - 조회할 호스트 고유 ID
  * @returns 일치하는 Host 또는 undefined (존재하지 않는 ID)
  */
-export function findHostById(hostId: string): Host | undefined {
+export const findHostById = cache((hostId: string): Host | undefined => {
   const record = hostRecords.find(h => h.id === hostId)
   if (!record) return undefined
   return toHost(record)
-}
+})
 
 // ---------------------------------------------------------------------------
 // 인증 함수
@@ -100,6 +105,10 @@ export function findHostById(hostId: string): Host | undefined {
 
 /**
  * 이메일과 비밀번호로 호스트를 인증한다.
+ *
+ * 이메일은 대소문자를 구분하지 않는다 (RFC 5321 관례 — local-part는 기술적으로
+ * 대소문자 구분이지만, 실무에서는 대소문자 무시가 표준).
+ * Phase 3 DB 연동 시에도 동일한 정규화 정책을 유지해야 한다.
  *
  * @param email - 로그인 이메일
  * @param password - 평문 비밀번호 (Phase 3에서 해시 비교로 교체 예정)
@@ -109,8 +118,9 @@ export function authenticateHost(
   email: string,
   password: string
 ): Host | undefined {
+  const normalizedEmail = email.toLowerCase()
   const record = hostRecords.find(
-    h => h.email === email && h._password === password
+    h => h.email.toLowerCase() === normalizedEmail && h._password === password
   )
   if (!record) return undefined
   return toHost(record)
@@ -120,6 +130,9 @@ export function authenticateHost(
  * 신규 호스트를 등록한다.
  * 이미 존재하는 이메일이면 EMAIL_EXISTS 오류를 반환한다.
  *
+ * 이메일은 저장 시 소문자로 정규화되며, 중복 검사도 대소문자 무시로 수행된다.
+ * Phase 3 DB 연동 시에도 동일한 정규화 정책을 유지해야 한다.
+ *
  * @param input - 이름, 이메일, 비밀번호
  * @returns 성공 시 `{ ok: true, host }`, 중복 이메일 시 `{ ok: false, reason: 'EMAIL_EXISTS' }`
  */
@@ -128,7 +141,10 @@ export function registerHost(input: {
   email: string
   password: string
 }): { ok: true; host: Host } | { ok: false; reason: 'EMAIL_EXISTS' } {
-  const duplicate = hostRecords.find(h => h.email === input.email)
+  const normalizedEmail = input.email.toLowerCase()
+  const duplicate = hostRecords.find(
+    h => h.email.toLowerCase() === normalizedEmail
+  )
   if (duplicate) {
     return { ok: false, reason: 'EMAIL_EXISTS' }
   }
@@ -139,7 +155,7 @@ export function registerHost(input: {
   const newRecord: HostRecord = {
     id,
     name: input.name,
-    email: input.email,
+    email: normalizedEmail,
     // 신규 호스트 기본 응답 시간: 측정 전이므로 0으로 설정
     responseTimeMinutes: 0,
     _password: input.password,

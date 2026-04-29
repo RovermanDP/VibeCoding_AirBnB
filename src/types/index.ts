@@ -7,7 +7,11 @@ export type { Host } from './host'
 
 export type { Listing, ListingStatus } from './listing'
 
-export type { Reservation, ReservationStatus } from './reservation'
+export type {
+  Reservation,
+  ReservationStatus,
+  ReservationWithListing,
+} from './reservation'
 
 export type {
   Message,

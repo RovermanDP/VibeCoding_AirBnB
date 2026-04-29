@@ -36,3 +36,12 @@ export interface Reservation {
   /** 예약 생성 일시 */
   createdAt: Date
 }
+
+/**
+ * 페이지 표시용 예약 — 도메인 Reservation에 listingTitle을 조인한 derived 타입.
+ * 데이터 페칭 계층(`_lib/reservations.ts`)에서 listingId로 조인 후 반환한다.
+ */
+export interface ReservationWithListing extends Reservation {
+  /** 예약된 숙소의 제목 (listingId로 조인) */
+  listingTitle: string
+}
