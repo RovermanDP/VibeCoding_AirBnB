@@ -24,14 +24,18 @@ import { EmptyState } from '@/components/common/empty-state'
 import { PageHeader } from '@/components/common/page-header'
 import { StatCard } from '@/components/common/stat-card'
 import { PerformanceChartContainer } from '@/components/performance/performance-chart-container'
+import { PerformanceListingFilter } from '@/components/performance/listing-filter'
+import { PerformanceTable } from '@/components/performance/performance-table'
 import { PeriodFilter } from '@/components/performance/period-filter'
 import { Skeleton } from '@/components/ui/skeleton'
 import { getHostId } from '@/lib/auth/session'
+import { formatKRW } from '@/lib/format-utils'
 import type { PerformancePeriod } from '@/types'
 import {
   aggregatePerformance,
   fetchListingsForHost,
   fetchPerformanceSummaries,
+  formatOccupancy,
   parsePeriod,
 } from './_lib/performance'
 
@@ -88,12 +92,20 @@ async function PerformanceDataSection({
 
   return (
     <div className="space-y-6">
-      {/* 숙소 선택 필터 */}
-      {/* TODO: Task 013 UI — <PerformanceListingFilter listings={listings} /> */}
-      {/* 숙소 드롭다운은 다음 패스에서 구현한다. 현재 listings.length={listings.length} */}
-      <div className="text-muted-foreground rounded-md border border-dashed p-4 text-sm">
-        숙소 선택 필터 ({listings.length}개 숙소) — 다음 패스에서 구현 예정
-      </div>
+      {/* 숙소 선택 필터 — Task 012-A 구현 */}
+      {/*
+       * 숙소가 1개 이상이면 "전체 숙소" + 개별 숙소 항목이 렌더된다.
+       * 0개일 때만 필터 자체가 숨겨진다 (PerformanceListingFilter 내부 처리).
+       *
+       * baseParams로 `period`를 전달하여 숙소 변경 시에도 기간 선택이 유지된다.
+       * PeriodFilter의 baseParams={{ listingId }} 패턴과 완전 대칭 구조 — 향후 search param이
+       * 추가되어도 양쪽 필터 모두 baseParams 확장만으로 자동 보존된다.
+       */}
+      <PerformanceListingFilter
+        listings={listings}
+        currentListingId={listingId}
+        baseParams={{ period }}
+      />
 
       {/* 빈 상태 처리 */}
       {isEmpty ? (
@@ -108,7 +120,7 @@ async function PerformanceDataSection({
             {/* 매출 카드 */}
             <StatCard
               label="매출"
-              value={`${aggregate.totalRevenue.toLocaleString('ko-KR')}원`}
+              value={formatKRW(aggregate.totalRevenue)}
               hint={`기간: ${period}`}
             />
 
@@ -122,7 +134,7 @@ async function PerformanceDataSection({
             {/* 점유율 카드 */}
             <StatCard
               label="점유율"
-              value={`${(aggregate.avgOccupancyRate * 100).toFixed(1)}%`}
+              value={formatOccupancy(aggregate.avgOccupancyRate)}
               hint={`평균, 기간: ${period}`}
             />
 
@@ -141,15 +153,16 @@ async function PerformanceDataSection({
             />
           </div>
 
-          {/* 숙소별 성과 테이블 자리 */}
+          {/* 숙소별 성과 테이블 — Task 012-A 구현 */}
           {/*
-           * TODO: Task 013 UI — <PerformanceTable summaries={summaries} listings={listings} />
-           * periodResponseMinutes prop 사용 (Host.responseTimeMinutes 혼용 금지)
+           * PerformanceTable은 PerformanceSummary.responseTimeMinutes를
+           * periodResponseMinutes prop으로 명확화하여 표시한다.
+           * Host.responseTimeMinutes(상시 누적 평균) 혼용 금지.
            */}
-          <PerformanceChartContainer
-            title="숙소별 성과"
-            description={`${summaries.length}개 숙소의 기간(${period}) 성과 상세`}
-            aspect="square"
+          <PerformanceTable
+            summaries={summaries}
+            listings={listings}
+            period={period}
           />
 
           {/* 매출·점유율 추이 차트 */}

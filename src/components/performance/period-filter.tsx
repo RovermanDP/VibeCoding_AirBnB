@@ -25,21 +25,10 @@
 import Link from 'next/link'
 import type { PerformancePeriod } from '@/types'
 import { cn } from '@/lib/utils'
-import { VALID_PERIODS } from '@/app/(dashboard)/dashboard/performance/_lib/performance'
-
-/**
- * 기간 값별 한글 라벨.
- *
- * @remarks
- * 기간 값(키)은 `VALID_PERIODS`(_lib/performance.ts)에서 단일 출처로 관리한다.
- * 새 기간이 추가되면 `Record<PerformancePeriod, string>` 타입 덕분에 컴파일 타임에
- * 누락이 잡혀 동기화가 강제된다.
- */
-const PERIOD_LABELS: Record<PerformancePeriod, string> = {
-  '7d': '7일',
-  '30d': '30일',
-  '90d': '90일',
-}
+import {
+  PERIOD_LABELS,
+  VALID_PERIODS,
+} from '@/app/(dashboard)/dashboard/performance/_lib/performance'
 
 /** 표시 순서를 보존한 옵션 배열 — VALID_PERIODS의 순서를 그대로 따른다 */
 const PERIOD_OPTIONS: ReadonlyArray<{
