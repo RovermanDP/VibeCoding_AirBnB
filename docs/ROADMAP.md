@@ -60,11 +60,11 @@
   - `not-found.tsx`, `loading.tsx`, `error.tsx` 기본 파일 추가
   - 루트 `src/app/page.tsx`는 `/dashboard` 또는 `/login`으로 분기 리다이렉트
 
-- **Task 002: 도메인 타입 및 Zod 스키마 정의** (의존: 001 / 복잡도: 중)
-  - `src/types/`에 `Host`, `Listing`, `Reservation`, `MessageThread`, `Message`, `PerformanceSummary` 인터페이스 정의
-  - `Reservation.status`, `Listing.status`, `MessageThread.status` 등 리터럴 유니언 타입 작성
-  - `src/lib/schemas/`에 로그인/회원가입/답장 폼 Zod 스키마 작성
-  - 응답 시간 분리 원칙(Host 상시평균 vs PerformanceSummary 기간평균) 타입에 명시
+- ✅ **Task 002: 도메인 타입 및 Zod 스키마 정의** (의존: 001 / 복잡도: 중)
+  - ✅ `src/types/`에 `Host`, `Listing`, `Reservation`, `MessageThread`, `Message`, `PerformanceSummary` 인터페이스 정의
+  - ✅ `Reservation.status`, `Listing.status`, `MessageThread.status` 등 리터럴 유니언 타입 작성
+  - ✅ `src/lib/schemas/`에 로그인/회원가입/답장 폼 Zod 스키마 작성
+  - ✅ 응답 시간 분리 원칙(Host 상시평균 vs PerformanceSummary 기간평균) 타입에 명시
 
 - **Task 003: 인증 미들웨어 및 쿠키 세션 골격** (의존: 001 / 복잡도: 중)
   - `middleware.ts` 작성 (matcher: `/dashboard/:path*`)
