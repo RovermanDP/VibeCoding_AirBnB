@@ -8,11 +8,7 @@ import { z } from 'zod'
  * React Hook Form(클라이언트)과 Server Action(서버) 양쪽에서 동일하게 사용한다.
  */
 export const replySchema = z.object({
-  body: z
-    .string()
-    .min(1, { message: '메시지를 입력해주세요.' })
-    .trim()
-    .min(1, { message: '메시지를 입력해주세요.' }),
+  body: z.string().trim().min(1, { message: '메시지를 입력해주세요.' }),
 })
 
 /** 답장 폼 값 타입 */

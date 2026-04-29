@@ -37,7 +37,10 @@ export interface Message {
 export interface MessageThread {
   /** 대화 고유 식별자 (UUID) */
   id: string
-  /** 연결 예약 ID (→ Reservation.id) */
+  /**
+   * 연결 예약 ID (→ Reservation.id)
+   * @remarks 데이터 격리 시 reservationId → Reservation.listingId → Listing.hostId 경로로 조회한다.
+   */
   reservationId: string
   /** 게스트 이름 */
   guestName: string
